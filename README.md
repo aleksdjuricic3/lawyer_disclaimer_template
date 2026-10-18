@@ -1,3 +1,25 @@
+This repository is a fillable template product. The disclaimer below is the canonical prose, copied verbatim from the upstream README. Filling a YAML fields file substitutes the bracket placeholders and does not add or rewrite any other wording.
+
+| Placeholder | Field |
+| --- | --- |
+| `[List Jxd]` | `jurisdictions` |
+| `[LeXpunk/L3X disclosure]` | `lexpunk_disclosure` |
+| `[Other]` | `other` |
+| `[LIST]` | `holdings` |
+
+Example fields (synthetic values only) are in `template/fields.example.yaml`. From the repository root, with Python 3.11+:
+
+```bash
+python -m pip install -r requirements.txt
+python -m disclaimer_template template/fields.example.yaml --out filled.md
+```
+
+Omit `--out` to write the filled markdown to stdout. If a required field is missing, the command exits with an error and does not write a partial file. Use `python3` if `python` is not on your `PATH`.
+
+This fork's source of truth is <https://github.com/aleksdjuricic3/lawyer_disclaimer_template>. The disclaimer prose comes from the README of <https://github.com/LeXpunK-Army/lawyer_disclaimer_template>, which ships no license file. The scaffold added in this fork (filler, tests, and example fields) is under the MIT license in `LICENSE`.
+
+---
+
 # lawyer_disclaimer_template
 autonomous law disclosure and disclaimer template (lawyer version)
 
