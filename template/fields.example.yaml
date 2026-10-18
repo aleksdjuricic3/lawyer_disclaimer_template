@@ -1,0 +1,16 @@
+# Synthetic example values for the bracket placeholders in the canonical
+# disclaimer (disclaimer_template/template.md). These strings are not
+# admissions, communities, holdings, or other facts.
+#
+# Quote every value so YAML keeps it a string. An empty string is allowed;
+# omitting a key is an error.
+#
+# jurisdictions        replaces [List Jxd]
+# lexpunk_disclosure   replaces [LeXpunk/L3X disclosure]
+# other                replaces [Other]
+# holdings             replaces [LIST]
+
+jurisdictions: "Example Jurisdiction"
+lexpunk_disclosure: "Example community disclosure"
+other: "Example other community"
+holdings: "EXAMPLE-HOLDING"
