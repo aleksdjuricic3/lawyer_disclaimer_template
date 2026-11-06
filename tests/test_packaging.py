@@ -38,6 +38,20 @@ class PackagingContractTests(unittest.TestCase):
         self.assertIn("PyYAML==6.0.3", requirements)
         self.assertIn("--hash=sha256:", requirements)
 
+    def test_ci_installs_runtime_and_build_tools_with_hashes(self):
+        workflow = (ROOT / ".github" / "workflows" / "tests.yml").read_text(encoding="utf-8")
+        self.assertIn(
+            "pip install --require-hashes --only-binary=:all: -r requirements.txt",
+            workflow,
+        )
+        self.assertIn(
+            "pip install --require-hashes --only-binary=:all: -r requirements-build.txt",
+            workflow,
+        )
+        build = (ROOT / "requirements-build.txt").read_text(encoding="utf-8")
+        self.assertIn("setuptools==84.2.1", build)
+        self.assertIn("--hash=sha256:", build)
+
     def test_main_entry_point_fills_example_yaml(self):
         stdout = StringIO()
         stderr = StringIO()
