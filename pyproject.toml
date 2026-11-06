@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "disclaimer-template"
+version = "0.1.0"
+description = "Fill bracket placeholders in the canonical disclaimer template from a YAML fields file."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["PyYAML==6.0.3"]
+
+[project.scripts]
+disclaimer-template = "disclaimer_template.__main__:main"
+
+[project.urls]
+Homepage = "https://github.com/aleksdjuricic3/lawyer_disclaimer_template"
+Source = "https://github.com/aleksdjuricic3/lawyer_disclaimer_template"
+
+[tool.setuptools]
+packages = ["disclaimer_template"]
+
+[tool.setuptools.package-data]
+disclaimer_template = ["template.md"]

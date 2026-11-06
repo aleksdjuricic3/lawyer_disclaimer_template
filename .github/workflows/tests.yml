@@ -42,3 +42,91 @@ jobs:
 
       - name: Run unit tests
         run: python -m unittest discover -s tests
+
+  wheel-smoke:
+    name: "Wheel smoke ${{ matrix.python-version }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - "3.11"
+          - "3.12"
+          - "3.13"
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          persist-credentials: false
+
+      - name: "Set up Python ${{ matrix.python-version }}"
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: "${{ matrix.python-version }}"
+
+      - name: Build wheel without fetching dependencies
+        run: python -m pip wheel --no-deps --no-build-isolation -w dist .
+
+      - name: Install wheel into a clean environment
+        run: |
+          set -euo pipefail
+          python -m venv /tmp/disclaimer-smoke
+          /tmp/disclaimer-smoke/bin/python -m pip install --require-hashes --only-binary=:all: -r requirements.txt
+          /tmp/disclaimer-smoke/bin/python -m pip install --no-deps --no-index dist/*.whl
+
+      - name: Run installed console script and module entry
+        working-directory: /tmp
+        run: |
+          set -euo pipefail
+          smoke=/tmp/disclaimer-smoke
+          fields="${GITHUB_WORKSPACE}/template/fields.example.yaml"
+          "$smoke/bin/python" - <<'PY'
+          import os
+          from importlib.metadata import entry_points, requires, version
+          from pathlib import Path
+
+          import disclaimer_template
+
+          location = Path(disclaimer_template.__file__).resolve()
+          smoke_root = Path("/tmp/disclaimer-smoke")
+          if smoke_root not in location.parents:
+              raise SystemExit(f"imported checkout instead of installed wheel: {location}")
+          installed = location.parent / "template.md"
+          repo = Path(os.environ["GITHUB_WORKSPACE"]) / "disclaimer_template" / "template.md"
+          if installed.read_bytes() != repo.read_bytes():
+              raise SystemExit("installed template.md differs from the checkout")
+          scripts = [
+              ep
+              for ep in entry_points(group="console_scripts")
+              if ep.name == "disclaimer-template"
+          ]
+          if [ep.value for ep in scripts] != ["disclaimer_template.__main__:main"]:
+              raise SystemExit(f"unexpected console script: {scripts}")
+          if version("disclaimer-template") != "0.1.0":
+              raise SystemExit(version("disclaimer-template"))
+          # Core metadata may space the specifier ("PyYAML ==6.0.3").
+          declared = {"".join(item.split()) for item in requires("disclaimer-template") or []}
+          if "PyYAML==6.0.3" not in declared:
+              raise SystemExit(f"unexpected requires: {sorted(declared)}")
+          PY
+          "$smoke/bin/disclaimer-template" "$fields" --out /tmp/from-script.md
+          "$smoke/bin/python" -m disclaimer_template "$fields" --out /tmp/from-module.md
+          cmp /tmp/from-script.md /tmp/from-module.md
+          "$smoke/bin/python" - <<'PY'
+          import re
+          from pathlib import Path
+
+          text = Path("/tmp/from-script.md").read_text(encoding="utf-8")
+          leftovers = re.findall(r"\[[^\]\n]+\]", text)
+          if leftovers:
+              raise SystemExit("leftover bracket placeholders: " + ", ".join(leftovers))
+          for value in (
+              "Example Jurisdiction",
+              "Example community disclosure",
+              "Example other community",
+              "EXAMPLE-HOLDING",
+          ):
+              if value not in text:
+                  raise SystemExit(f"missing synthetic value: {value}")
+          PY
