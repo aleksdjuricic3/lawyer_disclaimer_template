@@ -1,5 +1,7 @@
-# Runtime dependency for the YAML fields CLI. Install with:
-#   python -m pip install -r requirements.txt
+# Runtime dependency for the YAML fields CLI. This file is the hashed
+# install source (CI passes --require-hashes). pyproject.toml pins the
+# same PyYAML version. Install with:
+#   python -m pip install --require-hashes --only-binary=:all: -r requirements.txt
 PyYAML==6.0.3 \
     --hash=sha256:214ed4befebe12df36bcc8bc2b64b396ca31be9304b8f59e25c11cf94a4c033b \
     --hash=sha256:02ea2dfa234451bbb8772601d7b8e426c2bfa197136796224e50e35a78777956 \

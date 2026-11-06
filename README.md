@@ -14,9 +14,17 @@ python -m pip install -r requirements.txt
 python -m disclaimer_template template/fields.example.yaml --out filled.md
 ```
 
+Install the package from this checkout. `requirements.txt` stays the hashed PyYAML pin. Then run the `disclaimer-template` console script:
+
+```bash
+python -m pip install --require-hashes --only-binary=:all: -r requirements.txt
+python -m pip install --no-deps .
+disclaimer-template template/fields.example.yaml --out filled.md
+```
+
 Omit `--out` to write the filled markdown to stdout. If a required field is missing, the command exits with an error and does not write a partial file. Use `python3` if `python` is not on your `PATH`.
 
-This fork's source of truth is <https://github.com/aleksdjuricic3/lawyer_disclaimer_template>. The disclaimer prose comes from the README of <https://github.com/LeXpunK-Army/lawyer_disclaimer_template>, which ships no license file. The scaffold added in this fork (filler, tests, and example fields) is under the MIT license in `LICENSE`.
+This fork's source of truth is <https://github.com/aleksdjuricic3/lawyer_disclaimer_template>. The disclaimer prose comes from the README of <https://github.com/LeXpunK-Army/lawyer_disclaimer_template>, which ships no license file. The scaffold added in this fork (filler, tests, packaging, and example fields) is under the MIT license in `LICENSE`.
 
 ---
 
